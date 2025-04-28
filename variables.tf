@@ -14,7 +14,11 @@ variable "name" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
-
+variable "kms_master_key_id" {
+  description = "The ID of an AWS-managed customer master key (CMK) for Amazon SNS or a custom CMK. If not provided, will use default AWS SNS key"
+  type        = string
+  default     = ""
+}
 
 variable "sns_topic_arn" {
   description = "The ARN of the SNS topic used for notifications, If not provided, topic will create SNS topic it self"

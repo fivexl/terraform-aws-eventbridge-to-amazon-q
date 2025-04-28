@@ -5,18 +5,21 @@ locals {
       ECSTaskStateChange = {
         detail-type = ["ECS Task State Change"]
         detail      = var.ecs_task_state_event_rule_detail
+        source = "aws.esc"
       }
     } : {},
     var.enable_ecs_deployment_state_event_rule ? {
       ECSDeploymentStateChange = {
         detail-type = ["ECS Deployment State Change"]
         detail      = var.ecs_deployment_state_event_rule_detail
+        source = "aws.esc"
       }
     } : {},
     var.enable_ecs_service_action_event_rule ? {
       ECSServiceAction = {
         detail-type = ["ECS Service Action"]
         detail      = var.ecs_service_action_event_rule_detail
+        source = "aws.esc"
       }
     } : {},
     var.custom_event_rules
@@ -29,7 +32,7 @@ resource "aws_cloudwatch_event_rule" "this" {
   name        = "${var.name}-${each.key}"
   description = "Event rule for ${each.key}"
   event_pattern = jsonencode({
-    source      = [try(each.value.source, "aws.ecs")]
+    source      = each.value.source
     detail-type = each.value.detail-type
     detail      = each.value.detail
   })

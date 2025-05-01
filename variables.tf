@@ -61,7 +61,7 @@ variable "ecs_service_action_event_rule_detail" {
 
 variable "custom_event_rules" {
   description = "A map of objects representing the custom EventBridge rule which will be created in addition to the default rules."
-  type        = any
+  type        = map(any)
   default     = {}
 
   validation {

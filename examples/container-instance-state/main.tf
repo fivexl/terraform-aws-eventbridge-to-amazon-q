@@ -1,12 +1,14 @@
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = ">= 0.13.1"
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 3.69.0"
+      version = ">= 5.61.0"
     }
   }
 }
+
 
 provider "aws" {
   region = "us-east-1"
@@ -18,7 +20,7 @@ data "aws_ecs_cluster" "this" {
 
 module "ecs_to_slack" {
   source = "../../"
-  name   = "amazon_q_notifications"
+  name   = "terraform-aws-eventbridge-to-amazon-q"
 
   # Do not create any built-in rule
   ecs_task_state_event_rule_detail       = {}
@@ -33,6 +35,7 @@ module "ecs_to_slack" {
       detail = {
         clusterArn = [data.aws_ecs_cluster.this.arn], # Filter by this ECS cluster ARN,
         status     = [{ "anything-but" = "ACTIVE" }]  # except events with status = ACTIVE
+        source     = ["aws.ecs"]
       }
     }
   }

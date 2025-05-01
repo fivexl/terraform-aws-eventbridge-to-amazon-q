@@ -1,9 +1,10 @@
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = ">= 0.13.1"
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 3.69.0"
+      version = ">= 5.61.0"
     }
   }
 }
@@ -18,7 +19,7 @@ data "aws_ecs_cluster" "this" {
 
 module "ecs_to_slack" {
   source = "../../"
-  name   = "amazon_q_notifications"
+  name   = "terraform-aws-eventbridge-to-amazon-q"
 
   # Process events "ECS Task State Change"
   # Find more infro here https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns-content-based-filtering.html
@@ -46,6 +47,7 @@ module "ecs_to_slack" {
         clusterArn = [data.aws_ecs_cluster.this.arn],
         lastStatus = ["STARTED"]
         group      = ["service:EXAMPLE-SERVICE-NAME"]
+        source     = ["aws.ecs"]
       }
     }
 
@@ -56,6 +58,7 @@ module "ecs_to_slack" {
         clusterArn = [data.aws_ecs_cluster.this.arn],
         lastStatus = ["STOPPED"]
         stopCode   = "EssentialContainerExited"
+        source     = ["aws.ecs"]
         containers = {
           exitCode = [{ "anything-but" = 0 }]
         }
@@ -66,7 +69,7 @@ module "ecs_to_slack" {
 
 module "ecs_to_slack_no_jenkins" {
   source = "../../"
-  name   = "ecs-to-slack"
+  name   = "terraform-aws-eventbridge-to-amazon-q"
 
   ecs_task_state_event_rule_detail = {
     lastStatus    = ["STOPPED"]

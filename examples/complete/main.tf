@@ -1,9 +1,10 @@
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = ">= 0.13.1"
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 3.69.0"
+      version = ">= 5.61.0"
     }
   }
 }
@@ -15,7 +16,7 @@ provider "aws" {
 
 module "ecs_to_slack" {
   source = "../../"
-  name   = "amazon_q_notifications"
+  name   = "terraform-aws-eventbridge-to-amazon-q"
 
   # Enable ECS task state change events
   enable_ecs_task_state_event_rule = true

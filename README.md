@@ -8,8 +8,7 @@ This module helps you to send AWS EventBrige events to Slack / Microsoft teams
 
 This module creates EventBridge rules `aws_cloudwatch_event_rule` that:
 1. Capture ECS events
-2. Format them using `input_transformer` into the required format
-3. Send them to a specified SNS topic
+2. Send them to a specified SNS topic
 
 The SNS topic sends messages to Amazon Q Developer, which then distributes them to:
 - Slack
@@ -62,7 +61,7 @@ module "ecs_to_slack" {
 
 ## Message Format
 
-The module formats events into the following format that is compatible with Amazon Q Developer:
+The module sends events in the following format that is compatible with Amazon Q Developer:
 
 ```json
 {

@@ -65,8 +65,8 @@ variable "custom_event_rules" {
   default     = {}
 
   validation {
-    error_message = "Each rule object should have both 'detail' and 'detail-type' keys."
-    condition     = alltrue([for name, rule in var.custom_event_rules : length(setintersection(keys(rule), ["detail", "detail-type"])) == 2])
+    error_message = "Each rule object should have both 'detail' and 'source' and 'detail-type' keys."
+    condition     = alltrue([for name, rule in var.custom_event_rules : length(setintersection(keys(rule), ["detail", "detail-type", "source"])) == 3])
   }
 }
 

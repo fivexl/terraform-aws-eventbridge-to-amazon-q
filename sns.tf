@@ -1,8 +1,8 @@
 resource "aws_sns_topic" "this" {
-  count = var.sns_topic_arn == "" ? 1 : 0
-  name  = var.name
-  tags  = var.tags
-  # kms_master_key_id = var.kms_master_key_id != "" ? var.kms_master_key_id : "alias/aws/sns"
+  count             = var.sns_topic_arn == "" ? 1 : 0
+  name              = var.name
+  tags              = var.tags
+  kms_master_key_id = var.kms_master_key_id != "" ? var.kms_master_key_id : null
 }
 
 resource "aws_sns_topic_policy" "this" {
@@ -20,6 +20,7 @@ resource "aws_sns_topic_policy" "this" {
         Action   = "SNS:Publish"
         Resource = aws_sns_topic.this[0].arn
       }
+
     ]
   })
 }

@@ -32,10 +32,11 @@ module "ecs_to_slack" {
   custom_event_rules = {
     ECSContInstanceStateChange = {
       detail-type = ["ECS Container Instance State Change"]
+      source      = ["aws.ecs"]
       detail = {
         clusterArn = [data.aws_ecs_cluster.this.arn], # Filter by this ECS cluster ARN,
         status     = [{ "anything-but" = "ACTIVE" }]  # except events with status = ACTIVE
-        source     = ["aws.ecs"]
+
       }
     }
   }

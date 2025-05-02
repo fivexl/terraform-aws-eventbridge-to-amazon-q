@@ -41,7 +41,8 @@ module "ecs_to_slack" {
   sns_topic_arn = "arn:aws:sns:region:account-id:topic-name"
 
   # Optional: Provide custom KMS key for SNS topic encryption
-  # If not provided, will use default AWS SNS key
+  # If not provided, SNS topic will not use encryption.
+  # Note: To enable encryption and manage access permissions, you must provide your own KMS/CMK key.
   kms_master_key_id = "arn:aws:kms:region:account-id:key/key-id"
 }
 ```
@@ -50,6 +51,9 @@ module "ecs_to_slack" {
 
 1. Amazon Q Developer workspace must be configured and accessible
 2. Chat bot must be subscribed to the SNS topic configuration
+
+> Note: AWS managed service keys don't allow you to modify access policies, so you will need AWS KMS/CMK for encrypted SNS topics. You can then update the access permissions in the AWS KMS key policy to allow the service that sends messages to publish to your encrypted SNS topics (for example, EventBridge).
+
 3. If using existing SNS topic, ensure it has proper permissions for EventBridge to publish messages
 
 ## Important Notes
@@ -97,15 +101,15 @@ The module sends events in the following format that is compatible with Amazon Q
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
-| Name                                                                      | Version   |
-| ------------------------------------------------------------------------- | --------- |
+| Name | Version |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws)                   | >= 5.61.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.61.0 |
 
 ## Providers
 
-| Name                                              | Version   |
-| ------------------------------------------------- | --------- |
+| Name | Version |
+|------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.61.0 |
 
 ## Modules
@@ -114,32 +118,33 @@ No modules.
 
 ## Resources
 
-| Name                                                                                                                                    | Type     |
-| --------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| [aws_cloudwatch_event_rule.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule)     | resource |
+| Name | Type |
+|------|------|
+| [aws_cloudwatch_event_rule.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_target.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
-| [aws_sns_topic.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic)                             | resource |
-| [aws_sns_topic_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_policy)               | resource |
+| [aws_sns_topic.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
+| [aws_sns_topic_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_policy) | resource |
 
 ## Inputs
 
-| Name                                                                                                                                                           | Description                                                                                                                                                                                     | Type          | Default                                                                                                                                                                                                                                     | Required |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
-| <a name="input_custom_event_rules"></a> [custom\_event\_rules](#input\_custom\_event\_rules)                                                                   | A map of objects representing the custom EventBridge rule which will be created in addition to the default rules.                                                                               | `any`         | `{}`                                                                                                                                                                                                                                        |    no    |
-| <a name="input_ecs_deployment_state_event_rule_detail"></a> [ecs\_deployment\_state\_event\_rule\_detail](#input\_ecs\_deployment\_state\_event\_rule\_detail) | The content of the `detail` section in the EvenBridge Rule for `ECS Deployment State Change` events. Use it to filter the events which will be processed and sent to Slack.                     | `any`         | <pre>{<br/>  "eventType": [<br/>    "ERROR"<br/>  ]<br/>}</pre>                                                                                                                                                                             |    no    |
-| <a name="input_ecs_service_action_event_rule_detail"></a> [ecs\_service\_action\_event\_rule\_detail](#input\_ecs\_service\_action\_event\_rule\_detail)       | The content of the `detail` section in the EvenBridge Rule for `ECS Service Action` events. Use it to filter the events which will be processed and sent to Slack.                              | `any`         | <pre>{<br/>  "eventType": [<br/>    "WARN",<br/>    "ERROR"<br/>  ]<br/>}</pre>                                                                                                                                                             |    no    |
-| <a name="input_ecs_task_state_event_rule_detail"></a> [ecs\_task\_state\_event\_rule\_detail](#input\_ecs\_task\_state\_event\_rule\_detail)                   | The content of the `detail` section in the EvenBridge Rule for `ECS Task State Change` events. Use it to filter the events which will be processed and sent to Slack.                           | `any`         | <pre>{<br/>  "lastStatus": [<br/>    "STOPPED"<br/>  ],<br/>  "stoppedReason": [<br/>    {<br/>      "anything-but": {<br/>        "prefix": "Scaling activity initiated by (deployment ecs-svc/"<br/>      }<br/>    }<br/>  ]<br/>}</pre> |    no    |
-| <a name="input_enable_ecs_deployment_state_event_rule"></a> [enable\_ecs\_deployment\_state\_event\_rule](#input\_enable\_ecs\_deployment\_state\_event\_rule) | The boolean flag enabling the EvenBridge Rule for `ECS Deployment State Change` events. The `detail` section of this rule is configured with `ecs_deployment_state_event_rule_detail` variable. | `bool`        | `true`                                                                                                                                                                                                                                      |    no    |
-| <a name="input_enable_ecs_service_action_event_rule"></a> [enable\_ecs\_service\_action\_event\_rule](#input\_enable\_ecs\_service\_action\_event\_rule)       | The boolean flag enabling the EvenBridge Rule for `ECS Service Action` events. The `detail` section of this rule is configured with `ecs_service_action_event_rule_detail` variable.            | `bool`        | `true`                                                                                                                                                                                                                                      |    no    |
-| <a name="input_enable_ecs_task_state_event_rule"></a> [enable\_ecs\_task\_state\_event\_rule](#input\_enable\_ecs\_task\_state\_event\_rule)                   | The boolean flag enabling the EvenBridge Rule for `ECS Task State Change` events. The `detail` section of this rule is configured with `ecs_task_state_event_rule_detail` variable.             | `bool`        | `true`                                                                                                                                                                                                                                      |    no    |
-| <a name="input_name"></a> [name](#input\_name)                                                                                                                 | Name to be used on all the resources as identifier                                                                                                                                              | `string`      | `"aws-eventbridge-to-amazon-q-developer"`                                                                                                                                                                                                   |    no    |
-| <a name="input_sns_topic_arn"></a> [sns\_topic\_arn](#input\_sns\_topic\_arn)                                                                                  | The ARN of the SNS topic used for notifications, If not provided, topic will create SNS topic it self                                                                                           | `string`      | `""`                                                                                                                                                                                                                                        |    no    |
-| <a name="input_tags"></a> [tags](#input\_tags)                                                                                                                 | A map of tags to add to all resources                                                                                                                                                           | `map(string)` | `{}`                                                                                                                                                                                                                                        |    no    |
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_custom_event_rules"></a> [custom\_event\_rules](#input\_custom\_event\_rules) | A map of objects representing the custom EventBridge rule which will be created in addition to the default rules. | `map(any)` | `{}` | no |
+| <a name="input_ecs_deployment_state_event_rule_detail"></a> [ecs\_deployment\_state\_event\_rule\_detail](#input\_ecs\_deployment\_state\_event\_rule\_detail) | The content of the `detail` section in the EvenBridge Rule for `ECS Deployment State Change` events. Use it to filter the events which will be processed and sent to Slack. | `any` | <pre>{<br/>  "eventType": [<br/>    "ERROR"<br/>  ]<br/>}</pre> | no |
+| <a name="input_ecs_service_action_event_rule_detail"></a> [ecs\_service\_action\_event\_rule\_detail](#input\_ecs\_service\_action\_event\_rule\_detail) | The content of the `detail` section in the EvenBridge Rule for `ECS Service Action` events. Use it to filter the events which will be processed and sent to Slack. | `any` | <pre>{<br/>  "eventType": [<br/>    "WARN",<br/>    "ERROR"<br/>  ]<br/>}</pre> | no |
+| <a name="input_ecs_task_state_event_rule_detail"></a> [ecs\_task\_state\_event\_rule\_detail](#input\_ecs\_task\_state\_event\_rule\_detail) | The content of the `detail` section in the EvenBridge Rule for `ECS Task State Change` events. Use it to filter the events which will be processed and sent to Slack. | `any` | <pre>{<br/>  "lastStatus": [<br/>    "STOPPED"<br/>  ],<br/>  "stoppedReason": [<br/>    {<br/>      "anything-but": {<br/>        "prefix": "Scaling activity initiated by (deployment ecs-svc/"<br/>      }<br/>    }<br/>  ]<br/>}</pre> | no |
+| <a name="input_enable_ecs_deployment_state_event_rule"></a> [enable\_ecs\_deployment\_state\_event\_rule](#input\_enable\_ecs\_deployment\_state\_event\_rule) | The boolean flag enabling the EvenBridge Rule for `ECS Deployment State Change` events. The `detail` section of this rule is configured with `ecs_deployment_state_event_rule_detail` variable. | `bool` | `true` | no |
+| <a name="input_enable_ecs_service_action_event_rule"></a> [enable\_ecs\_service\_action\_event\_rule](#input\_enable\_ecs\_service\_action\_event\_rule) | The boolean flag enabling the EvenBridge Rule for `ECS Service Action` events. The `detail` section of this rule is configured with `ecs_service_action_event_rule_detail` variable. | `bool` | `true` | no |
+| <a name="input_enable_ecs_task_state_event_rule"></a> [enable\_ecs\_task\_state\_event\_rule](#input\_enable\_ecs\_task\_state\_event\_rule) | The boolean flag enabling the EvenBridge Rule for `ECS Task State Change` events. The `detail` section of this rule is configured with `ecs_task_state_event_rule_detail` variable. | `bool` | `true` | no |
+| <a name="input_kms_master_key_id"></a> [kms\_master\_key\_id](#input\_kms\_master\_key\_id) | The ID of an AWS-managed customer master key (CMK) for Amazon SNS or a custom CMK. If not provided, will use default AWS SNS key | `string` | `""` | no |
+| <a name="input_name"></a> [name](#input\_name) | Name to be used on all the resources as identifier | `string` | `"aws-eventbridge-to-amazon-q-developer"` | no |
+| <a name="input_sns_topic_arn"></a> [sns\_topic\_arn](#input\_sns\_topic\_arn) | The ARN of the SNS topic used for notifications, If not provided, topic will create SNS topic it self | `string` | `""` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to all resources | `map(string)` | `{}` | no |
 
 ## Outputs
 
-| Name                                                                            | Description          |
-| ------------------------------------------------------------------------------- | -------------------- |
+| Name | Description |
+|------|-------------|
 | <a name="output_sns_topic_arn"></a> [sns\_topic\_arn](#output\_sns\_topic\_arn) | ARN create SNS topic |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 

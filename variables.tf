@@ -5,7 +5,9 @@ variable "name" {
 }
 
 variable "kms_master_key_id" {
-  description = "The ID of an AWS-managed customer master key (CMK) for Amazon SNS or a custom CMK. If not provided, will use default AWS SNS key"
+  description = "If you have server-side encryption enabled for your Amazon SNS topics, you must give permissions to the sending services in your AWS KMS key policy to post events to the encrypted SNS topics. 
+In order to successfully test the configuration from the console, your role must also have permission to use the AWS KMS key.
+AWS managed service keys don’t allow you to modify access policies, so you will need AWS KMS/CMK for encrypted SNS topics. You can then update the access permissions in the AWS KMS key policy to allow the service that sends messages to publish to your encrypted SNS topics (for example, EventBridge)."
   type        = string
   default     = ""
 }

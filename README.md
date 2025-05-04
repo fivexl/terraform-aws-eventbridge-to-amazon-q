@@ -42,7 +42,10 @@ module "ecs_to_slack" {
 
   # Optional: Provide custom KMS key for SNS topic encryption
   # If not provided, SNS topic will not use encryption.
-  # Note: To enable encryption and manage access permissions, you must provide your own KMS/CMK key.
+  # If you have server-side encryption enabled for your Amazon SNS topics, you must give permissions to the sending services in your AWS KMS key policy to post events to the encrypted SNS topics. 
+  # In order to successfully test the configuration from the console, your role must also have permission to use the AWS KMS key.
+  # AWS managed service keys don’t allow you to modify access policies, so you will need AWS KMS/CMK for encrypted SNS topics. You can then update the access permissions in the AWS KMS key policy to allow the service that sends messages to publish to your encrypted SNS topics (for example, EventBridge).
+  # https://docs.aws.amazon.com/chatbot/latest/adminguide/chatbot-troubleshooting.html
   kms_master_key_id = "arn:aws:kms:region:account-id:key/key-id"
 }
 ```
@@ -51,14 +54,11 @@ module "ecs_to_slack" {
 
 1. Amazon Q Developer workspace must be configured and accessible
 2. Chat bot must be subscribed to the SNS topic configuration
-
-> Note: AWS managed service keys don't allow you to modify access policies, so you will need AWS KMS/CMK for encrypted SNS topics. You can then update the access permissions in the AWS KMS key policy to allow the service that sends messages to publish to your encrypted SNS topics (for example, EventBridge).
-
 3. If using existing SNS topic, ensure it has proper permissions for EventBridge to publish messages
 
 ## Important Notes
 
-- The module can create a new SNS topic if `sns_topic_arn` is not provided
+- The module will create a new SNS topic if `sns_topic_arn` is not provided
 - If you provide an existing SNS topic, ensure it has the correct permissions and encryption settings
 - Chat bot must be properly configured in your Amazon Q Developer workspace to receive notifications
 - Make sure to subscribe your chat bot to the SNS topic configuration after deployment

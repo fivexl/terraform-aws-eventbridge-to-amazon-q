@@ -43,22 +43,24 @@ module "ecs_to_slack" {
     # Custom rule which triggers on all started tasks of a certain service
     ECSTaskStateChange_Started = {
       detail-type = ["ECS Task State Change"]
+      source     = ["aws.ecs"]
       detail = {
         clusterArn = [data.aws_ecs_cluster.this.arn],
         lastStatus = ["STARTED"]
         group      = ["service:EXAMPLE-SERVICE-NAME"]
-        source     = ["aws.ecs"]
+
       }
     }
 
     # Custom rule which triggers on all stopped tasks with non-zero exit code of the essential container
     ECSTaskStateChange_StoppedNonZero = {
       detail-type = ["ECS Task State Change"]
+      source     = ["aws.ecs"]
       detail = {
         clusterArn = [data.aws_ecs_cluster.this.arn],
         lastStatus = ["STOPPED"]
         stopCode   = "EssentialContainerExited"
-        source     = ["aws.ecs"]
+
         containers = {
           exitCode = [{ "anything-but" = 0 }]
         }

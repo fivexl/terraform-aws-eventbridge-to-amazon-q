@@ -23,9 +23,10 @@ module "ecs_to_slack" {
   name   = "terraform-aws-eventbridge-to-amazon-q"
 
   # Do not create any built-in rule
-  ecs_task_state_event_rule_detail       = {}
-  ecs_deployment_state_event_rule_detail = {}
-  ecs_service_action_event_rule_detail   = {}
+
+  enable_ecs_task_state_event_rule       = false
+  enable_ecs_deployment_state_event_rule = false
+  enable_ecs_service_action_event_rule   = false
 
   # Create a custom rule, for all events from the cluster's Container Instances
   # Find more infro here https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns-content-based-filtering.html
